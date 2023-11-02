@@ -8,21 +8,38 @@ def control(aim_point, current_vel):
     :param current_vel: Current velocity of the kart
     :return: a pystk.Action (set acceleration, brake, steer, drift)
     """
-    action = pystk.Action()
+    # Constants
+    target_velocity = 20  # You may need to tune this for optimal performance
+    steer_scale = 1.0     # You may need to tune this scale factor
+    max_steering_angle = 1.0  # Maximum steering angle
 
-    """
-    Your code here
-    Hint: Use action.acceleration (0..1) to change the velocity. Try targeting a target_velocity (e.g. 20).
-    Hint: Use action.brake to True/False to brake (optionally)
-    Hint: Use action.steer to turn the kart towards the aim_point, clip the steer angle to -1..1
-    Hint: You may want to use action.drift=True for wide turns (it will turn faster)
-    """
+    # Calculate the difference between the current velocity and the target velocity
+    velocity_diff = target_velocity - current_vel
+
+    # Accelerate or brake based on the velocity difference
+    if velocity_diff > 0:
+        action.acceleration = min(velocity_diff, 1.0)
+        action.brake = False
+    else:
+        action.acceleration = 0
+        action.brake = True
+
+    # Calculate steering angle based on the aim point, scale it by steer_scale
+    # and make sure it's within the allowed range of -1 to 1
+    steer_angle = aim_point[0] * steer_scale
+    action.steer = max(min(steer_angle, max_steering_angle), -max_steering_angle)
+
+    # Determine if we should drift
+    action.drift = abs(steer_angle) > 0.5  # Drift if steering angle is large, tune this threshold as needed
+
+    # Nitro can be used for additional speed, but it's not mentioned in the hints
+    # action.nitro = False  # Set to True to use nitro, if desired
 
     return action
 
 
 if __name__ == '__main__':
-    from .utils import PyTux
+    from utils import PyTux
     from argparse import ArgumentParser
 
     def test_controller(args):
@@ -30,9 +47,8 @@ if __name__ == '__main__':
         pytux = PyTux()
         for t in args.track:
             steps, how_far = pytux.rollout(t, control, max_frames=1000, verbose=args.verbose)
-            print(steps, how_far)
+            print(f'Track: {t}, Steps: {steps}, Distance: {how_far}')
         pytux.close()
-
 
     parser = ArgumentParser()
     parser.add_argument('track', nargs='+')
