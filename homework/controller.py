@@ -39,7 +39,7 @@ def control(aim_point, current_vel):
 
 
 if __name__ == '__main__':
-    from utils import PyTux
+    from .utils import PyTux
     from argparse import ArgumentParser
 
     def test_controller(args):
