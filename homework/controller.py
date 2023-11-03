@@ -8,6 +8,9 @@ def control(aim_point, current_vel):
     :param current_vel: Current velocity of the kart
     :return: a pystk.Action (set acceleration, brake, steer, drift)
     """
+    # Instantiate the action object
+    action = pystk.Action()
+
     # Constants
     target_velocity = 20  # You may need to tune this for optimal performance
     steer_scale = 1.0     # You may need to tune this scale factor
