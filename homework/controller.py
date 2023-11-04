@@ -13,8 +13,8 @@ def control(aim_point, current_vel):
 
     # Constants
     target_velocity = 20  # You may need to tune this for optimal performance
-    steer_scale = 1.0     # You may need to tune this scale factor
-    max_steering_angle = 1.0  # Maximum steering angle
+    steer_scale = 1.2     # You may need to tune this scale factor
+    max_steering_angle = 1.2  # Maximum steering angle
 
     # Calculate the difference between the current velocity and the target velocity
     velocity_diff = target_velocity - current_vel
@@ -33,7 +33,7 @@ def control(aim_point, current_vel):
     action.steer = max(min(steer_angle, max_steering_angle), -max_steering_angle)
 
     # Determine if we should drift
-    action.drift = abs(steer_angle) > 0.5  # Drift if steering angle is large, tune this threshold as needed
+    action.drift = abs(steer_angle) > 0.3  # Drift if steering angle is large, tune this threshold as needed
 
     # Nitro can be used for additional speed, but it's not mentioned in the hints
     # action.nitro = False  # Set to True to use nitro, if desired
