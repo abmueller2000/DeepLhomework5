@@ -13,8 +13,8 @@ def control(aim_point, current_vel):
 
     # Constants
     target_velocity = 20  # You may need to tune this for optimal performance
-    steer_scale = 1.4     # You may need to tune this scale factor
-    max_steering_angle = 1.4  # Maximum steering angle
+    steer_scale = 1.6     # You may need to tune this scale factor
+    max_steering_angle = 1.6  # Maximum steering angle
 
     # Calculate the difference between the current velocity and the target velocity
     velocity_diff = target_velocity - current_vel
