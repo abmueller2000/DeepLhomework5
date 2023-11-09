@@ -1,45 +1,45 @@
 import pystk
-
+import numpy as np
+from itertools import product
+from homework.utils import PyTux
 
 def control(aim_point, current_vel):
     """
     Set the Action for the low-level controller
     :param aim_point: Aim point, in screen coordinate frame [-1..1]
     :param current_vel: Current velocity of the kart
-    :return: a pystk.Action (set acceleration, brake, steer, drift)
+    :return: a pystk.Action (set acceleration, brake, steer, drift, nitro)
     """
     # Instantiate the action object
     action = pystk.Action()
 
     # Constants
-    target_velocity = 20  # You may need to tune this for optimal performance
-    steer_scale = 1.6     # You may need to tune this scale factor
-    max_steering_angle = 1.6  # Maximum steering angle
+    target_velocity = 36
+    steer_scale = 3
+    max_steering_angle = 1
+    drift_threshold = 0.70  # Threshold for drifting off course
+    nitro_threshold = 0.15  # Threshold for using nitro when going almost straight
 
     # Calculate the difference between the current velocity and the target velocity
     velocity_diff = target_velocity - current_vel
 
-    # Accelerate or brake based on the velocity difference
-    if velocity_diff > 0:
-        action.acceleration = min(velocity_diff, 1.0)
-        action.brake = False
-    else:
-        action.acceleration = 0
-        action.brake = True
+    # Set acceleration to 1 if below target velocity, else 0
+    action.acceleration = 1.0 if velocity_diff > 0 else 0
 
     # Calculate steering angle based on the aim point, scale it by steer_scale
     # and make sure it's within the allowed range of -1 to 1
     steer_angle = aim_point[0] * steer_scale
-    action.steer = max(min(steer_angle, max_steering_angle), -max_steering_angle)
+    steer_angle = max(min(steer_angle, max_steering_angle), -max_steering_angle)
+    action.steer = steer_angle
 
-    # Determine if we should drift
-    action.drift = abs(steer_angle) > 0.6  # Drift if steering angle is large, tune this threshold as needed
+    # Determine if we should drift and brake only if drifting significantly off course
+    action.drift = abs(steer_angle) > drift_threshold
+    # action.brake = action.drift and current_vel > target_velocity
 
-    # Nitro can be used for additional speed, but it's not mentioned in the hints
-    # action.nitro = False  # Set to True to use nitro, if desired
+    # Use nitro if going straight or almost straight
+    action.nitro = abs(steer_angle) < nitro_threshold
 
     return action
-
 
 if __name__ == '__main__':
     from .utils import PyTux
