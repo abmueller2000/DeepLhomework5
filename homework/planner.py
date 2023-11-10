@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 
@@ -12,15 +13,39 @@ def spatial_argmax(logit):
     return torch.stack(((weights.sum(1) * torch.linspace(-1, 1, logit.size(2)).to(logit.device)[None]).sum(1),
                         (weights.sum(2) * torch.linspace(-1, 1, logit.size(1)).to(logit.device)[None]).sum(1)), 1)
 
+class Encoder(nn.Module):
+    def __init__(self):
+        super(Encoder, self).__init__()
+        # Define your encoder layers here
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=2, padding=1)
+        self.conv3 = nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        return x
+
+class Decoder(nn.Module):
+    def __init__(self):
+        super(Decoder, self).__init__()
+        # Define your decoder layers here
+        self.conv1 = nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1)
+        self.conv2 = nn.ConvTranspose2d(32, 16, kernel_size=4, stride=2, padding=1)
+        self.conv3 = nn.ConvTranspose2d(16, 1, kernel_size=4, stride=2, padding=1)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = torch.sigmoid(self.conv3(x))  # Using sigmoid to output a heatmap
+        return x
 
 class Planner(torch.nn.Module):
     def __init__(self):
-        super().__init__()
-
-        """
-        Your code here
-        """
-        raise NotImplementedError('Planner.__init__')
+        super(Planner, self).__init__()
+        self.encoder = Encoder()
+        self.decoder = Decoder()
 
     def forward(self, img):
         """
@@ -29,7 +54,10 @@ class Planner(torch.nn.Module):
         @img: (B,3,96,128)
         return (B,2)
         """
-        raise NotImplementedError("Planner.forward")
+        encoded = self.encoder(img)
+        heatmap = self.decoder(encoded)
+        aim_point = spatial_argmax(heatmap)
+        return aim_point
 
 
 def save_model(model):
