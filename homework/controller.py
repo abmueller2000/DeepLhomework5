@@ -14,11 +14,18 @@ def control(aim_point, current_vel):
     action = pystk.Action()
 
     # Constants
-    target_velocity = 36
+    base_target_velocity = 37
     steer_scale = 3
     max_steering_angle = 1
-    drift_threshold = 0.70  # Threshold for drifting off course
-    nitro_threshold = 0.20  # Threshold for using nitro when going almost straight
+    drift_threshold = 0.70
+    nitro_threshold = 0.20
+    brake_threshold = 0.80
+
+    # Adaptive Target Velocity based on aim point (assuming sharper turn means closer aim point)
+    target_velocity = base_target_velocity * (1 - abs(aim_point[0]))
+
+    # Dynamic Steering Adjustment based on current velocity
+    steer_scale = steer_scale * (base_target_velocity / (current_vel + 1))
 
     # Calculate the difference between the current velocity and the target velocity
     velocity_diff = target_velocity - current_vel
@@ -26,15 +33,16 @@ def control(aim_point, current_vel):
     # Set acceleration to 1 if below target velocity, else 0
     action.acceleration = 1.0 if velocity_diff > 0 else 0
 
-    # Calculate steering angle based on the aim point, scale it by steer_scale
-    # and make sure it's within the allowed range of -1 to 1
+    # Calculate steering angle based on the aim point
     steer_angle = aim_point[0] * steer_scale
     steer_angle = max(min(steer_angle, max_steering_angle), -max_steering_angle)
     action.steer = steer_angle
 
-    # Determine if we should drift and brake only if drifting significantly off course
-    action.drift = abs(steer_angle) > drift_threshold
-    # action.brake = action.drift and current_vel > target_velocity
+    # Advanced Drifting Logic
+    action.drift = abs(steer_angle) > drift_threshold and current_vel > target_velocity
+
+    # Smart Braking Strategy
+    action.brake = abs(steer_angle) > brake_threshold and current_vel > target_velocity
 
     # Use nitro if going straight or almost straight
     action.nitro = abs(steer_angle) < nitro_threshold
