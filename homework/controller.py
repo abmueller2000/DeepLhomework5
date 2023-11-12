@@ -18,7 +18,7 @@ def control(aim_point, current_vel):
     steer_scale = 3
     max_steering_angle = 1
     drift_threshold = 0.70  # Threshold for drifting off course
-    nitro_threshold = 0.15  # Threshold for using nitro when going almost straight
+    nitro_threshold = 0.20  # Threshold for using nitro when going almost straight
 
     # Calculate the difference between the current velocity and the target velocity
     velocity_diff = target_velocity - current_vel
