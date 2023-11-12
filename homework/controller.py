@@ -15,10 +15,10 @@ def control(aim_point, current_vel):
 
     # Constants
     base_target_velocity = 37
-    steer_scale = 3
+    steer_scale = 3.2
     max_steering_angle = 1
     drift_threshold = 0.70
-    nitro_threshold = 0.20
+    nitro_threshold = 0.15
     brake_threshold = 0.80
 
     # Adaptive Target Velocity based on aim point (assuming sharper turn means closer aim point)
