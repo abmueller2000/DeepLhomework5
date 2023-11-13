@@ -14,7 +14,7 @@ def control(aim_point, current_vel):
     action = pystk.Action()
 
     # Constants
-    base_target_velocity = 37
+    base_target_velocity = 41
     steer_scale = 3.2
     max_steering_angle = 1
     drift_threshold = 0.70
