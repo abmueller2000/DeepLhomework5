@@ -15,7 +15,7 @@ def control(aim_point, current_vel):
 
     # Constants
     base_target_velocity = 55
-    steer_scale = 3.2
+    steer_scale = 3.3
     max_steering_angle = 1
     drift_threshold = 0.70
     nitro_threshold = 0.15
